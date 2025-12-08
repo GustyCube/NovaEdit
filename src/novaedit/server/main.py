@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
+from functools import partial
 
 from fastapi import FastAPI, HTTPException
 
@@ -15,8 +18,14 @@ MODEL_ID = os.getenv("NOVAEDIT_MODEL_ID")
 MODEL_DEVICE = os.getenv("NOVAEDIT_DEVICE")
 SUPPORTED_LANGUAGES = {"python"}
 MAX_CODE_LINES = int(os.getenv("NOVAEDIT_MAX_CODE_LINES", "2000"))
+MAX_CONCURRENT = int(os.getenv("NOVAEDIT_MAX_CONCURRENT", "8"))
+REQUEST_TIMEOUT = float(os.getenv("NOVAEDIT_REQUEST_TIMEOUT", "15"))
+LOG_REQUESTS = os.getenv("NOVAEDIT_LOG_REQUESTS", "false").lower() in {"1", "true", "yes"}
 
 model = NovaEditModel(language=MODEL_LANGUAGE, hf_model_id=MODEL_ID, device=MODEL_DEVICE)
+semaphore = asyncio.Semaphore(MAX_CONCURRENT)
+logger = logging.getLogger("novaedit.server")
+logging.basicConfig(level=logging.INFO if LOG_REQUESTS else logging.WARNING)
 
 
 @app.get("/health")
@@ -42,13 +51,27 @@ async def edit(request: EditRequest) -> EditResponse:
             detail=f"Code snippet too large; limit {MAX_CODE_LINES} lines.",
         )
 
-    edits, patch_dsl = model.generate_patch(
-        code=request.code,
-        start_line=request.start_line,
-        end_line=request.end_line,
-        diagnostics=request.diagnostics,
-        instruction=request.instruction,
-    )
+    try:
+        semaphore.acquire_nowait()
+    except Exception:
+        raise HTTPException(status_code=429, detail="Too many concurrent requests")
+    try:
+        if LOG_REQUESTS:
+            logger.info("edit request language=%s start=%s end=%s", request.language, request.start_line, request.end_line)
+        loop = asyncio.get_event_loop()
+        generate = partial(
+            model.generate_patch,
+            code=request.code,
+            start_line=request.start_line,
+            end_line=request.end_line,
+            diagnostics=request.diagnostics,
+            instruction=request.instruction,
+        )
+        edits, patch_dsl = await asyncio.wait_for(loop.run_in_executor(None, generate), timeout=REQUEST_TIMEOUT)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Request timed out")
+    finally:
+        semaphore.release()
 
     structured = [
         StructuredEdit(
