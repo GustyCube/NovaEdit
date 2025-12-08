@@ -48,8 +48,11 @@ Health check: `GET /health` → `{ "status": "ok", "version": "..." }`
 ## Configuration
 - `NOVAEDIT_MODEL_ID` — optional HF model ID to load (default is heuristic baseline).
 - `NOVAEDIT_DEVICE` — device string (e.g., `cuda:0`).
-- `NOVAEDIT_LANGUAGE` — default `python`.
+- `NOVAEDIT_LANGUAGE` — default `python` (javascript stub also wired).
 - `NOVAEDIT_MAX_CODE_LINES` — reject snippets above this line count (default 2000).
+- `NOVAEDIT_MAX_CONCURRENT` — reject requests over this concurrency (default 8).
+- `NOVAEDIT_REQUEST_TIMEOUT` — seconds before timing out a request (default 15).
+- `NOVAEDIT_LOG_REQUESTS` — set to `true` to log edit calls.
 
 ## Error handling
 - `400` if `start_line > end_line` or payload is invalid.
