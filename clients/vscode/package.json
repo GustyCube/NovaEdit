@@ -34,6 +34,11 @@
           "type": "string",
           "default": "fix errors only",
           "description": "Instruction passed to the NovaEdit model."
+        },
+        "novaedit.timeoutMs": {
+          "type": "number",
+          "default": 15000,
+          "description": "Request timeout in milliseconds."
         }
       }
     }

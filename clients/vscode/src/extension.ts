@@ -11,6 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration("novaedit");
     const endpoint = process.env.NOVAEDIT_URL || config.get<string>("endpoint", "http://localhost:8000/v1/edit");
     const instruction = config.get<string>("instruction", "fix errors only");
+    const timeoutMs = config.get<number>("timeoutMs", 15000);
 
     const doc = editor.document;
     const selection = editor.selection;
@@ -33,6 +34,9 @@ export function activate(context: vscode.ExtensionContext) {
       instruction
     };
 
+    const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    status.text = "NovaEdit: working…";
+    status.show();
     try {
       await vscode.window.withProgress(
         {
@@ -41,14 +45,19 @@ export function activate(context: vscode.ExtensionContext) {
           cancellable: false
         },
         async () => {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), timeoutMs);
           const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
           });
+          clearTimeout(timer);
           if (!res.ok) {
             const text = await res.text();
             vscode.window.showErrorMessage(`NovaEdit failed: ${res.status} ${text}`);
+            status.text = "NovaEdit: error";
             return;
           }
           const body = await res.json();
@@ -58,9 +67,12 @@ export function activate(context: vscode.ExtensionContext) {
             workspaceEdit.replace(doc.uri, range, edit.replacement);
           }
           await vscode.workspace.applyEdit(workspaceEdit);
+          status.text = "NovaEdit: applied";
+          setTimeout(() => status.hide(), 3000);
         }
       );
     } catch (err: any) {
+      status.text = "NovaEdit: error";
       vscode.window.showErrorMessage(`NovaEdit error: ${err?.message ?? err}`);
     }
   });
