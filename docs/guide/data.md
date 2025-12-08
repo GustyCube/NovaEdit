@@ -23,6 +23,7 @@ bash scripts/prepare_python_data.sh
 - `scripts/build_edit_dataset.py` — merge multiple JSONL sources into one.
 - `scripts/train_tokenizer.py --input-glob 'data/python/raw/**/*.py' --output model/tokenizer.json` — train a BPE tokenizer.
 - Use `--validate` on `generate_synthetic_bugs.py` to skip samples that fail AST parsing.
+- `scripts/split_dataset.py --input data/python/processed/edits.jsonl --train-out ...` — split a merged dataset into train/val/test.
 
 ## Training stubs
 - `trainer/pretrain.py` — tiny character LM to smoke-test pipelines.
