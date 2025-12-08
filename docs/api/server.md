@@ -53,6 +53,7 @@ Health check: `GET /health` → `{ "status": "ok", "version": "..." }`
 - `NOVAEDIT_MAX_CONCURRENT` — reject requests over this concurrency (default 8).
 - `NOVAEDIT_REQUEST_TIMEOUT` — seconds before timing out a request (default 15).
 - `NOVAEDIT_LOG_REQUESTS` — set to `true` to log edit calls.
+- `NOVAEDIT_CORS_ORIGINS` — comma-separated list of allowed origins (add if calling from browser plugins).
 
 ## Error handling
 - `400` if `start_line > end_line` or payload is invalid.

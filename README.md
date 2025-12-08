@@ -14,6 +14,7 @@ NovaEdit is a compact, code-edit–first model stack and toolkit. It accepts cod
 - `src/novaedit/languages/python/*`: language adapter, simple diagnostics, and patch application helpers.
 - `src/novaedit/languages/javascript/*`: stub adapter to unblock multi-language wiring.
 - `src/novaedit/clients/cli/*`: Typer CLI for local edits or talking to the server.
+- `clients/nvim/*`: Neovim command to send selections to the NovaEdit server.
 - `trainer/*` and `scripts/*`: data prep and training stubs matching the plan.
 - `eval/*`: simple bugfix/regression harness skeletons.
 - `clients/vscode/*`: starter VS Code extension targeting the HTTP endpoint.
