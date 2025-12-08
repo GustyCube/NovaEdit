@@ -29,6 +29,8 @@ def parse_patch_dsl(patch_dsl: str) -> List[Edit]:
             start_line, end_line = int(start_str), int(end_str)
         except Exception as exc:  # pragma: no cover - defensive
             raise ValueError(f"Invalid patch header: {header}") from exc
+        if start_line < 1 or end_line < start_line:
+            raise ValueError(f"Invalid line span in patch header: {header}")
         idx += 1
         replacement_lines: List[str] = []
         while idx < len(lines) and not lines[idx].startswith("@@"):
@@ -43,6 +45,7 @@ def parse_patch_dsl(patch_dsl: str) -> List[Edit]:
 
 def apply_edits(code: str, edits: Sequence[Edit]) -> str:
     lines = code.splitlines()
+    validate_edits(edits)
     # apply bottom-up to maintain offsets
     for edit in sorted(edits, key=lambda e: e.start_line, reverse=True):
         start = max(1, edit.start_line) - 1
@@ -54,3 +57,15 @@ def apply_edits(code: str, edits: Sequence[Edit]) -> str:
 def apply_patch_dsl(code: str, patch_dsl: str) -> str:
     edits = parse_patch_dsl(patch_dsl)
     return apply_edits(code, edits)
+
+
+def validate_edits(edits: Sequence[Edit]) -> None:
+    """Ensure edits are non-overlapping and ordered."""
+    sorted_edits = sorted(edits, key=lambda e: (e.start_line, e.end_line))
+    last_end = 0
+    for edit in sorted_edits:
+        if edit.start_line < 1 or edit.end_line < edit.start_line:
+            raise ValueError(f"Invalid edit span: {edit}")
+        if edit.start_line <= last_end:
+            raise ValueError("Overlapping edits detected")
+        last_end = edit.end_line
