@@ -45,6 +45,12 @@ uvicorn novaedit.server.main:app --reload --port 8000
 
 Health check: `GET /health` → `{ "status": "ok", "version": "..." }`
 
+## Configuration
+- `NOVAEDIT_MODEL_ID` — optional HF model ID to load (default is heuristic baseline).
+- `NOVAEDIT_DEVICE` — device string (e.g., `cuda:0`).
+- `NOVAEDIT_LANGUAGE` — default `python`.
+- `NOVAEDIT_MAX_CODE_LINES` — reject snippets above this line count (default 2000).
+
 ## Error handling
 - `400` if `start_line > end_line` or payload is invalid.
 - `200` with zero edits if the model emits no changes.

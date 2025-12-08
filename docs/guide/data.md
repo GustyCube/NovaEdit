@@ -22,6 +22,7 @@ bash scripts/prepare_python_data.sh
 - `scripts/generate_synthetic_bugs.py` — inject varied bugs (missing imports, typos, off-by-one, comparators, missing returns) and save JSONL.
 - `scripts/build_edit_dataset.py` — merge multiple JSONL sources into one.
 - `scripts/train_tokenizer.py --input-glob 'data/python/raw/**/*.py' --output model/tokenizer.json` — train a BPE tokenizer.
+- Use `--validate` on `generate_synthetic_bugs.py` to skip samples that fail AST parsing.
 
 ## Training stubs
 - `trainer/pretrain.py` — tiny character LM to smoke-test pipelines.

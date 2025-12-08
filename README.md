@@ -27,6 +27,14 @@ The baseline is heuristic. To try a HF model (e.g., a small causal LM), instanti
 ## CLI highlights
 - `novaedit edit --code-file examples/buggy.py --language python --hf-model-id org/model` to use a local HF model.
 - `novaedit regression` to run built-in regression cases.
+- Pass diagnostics via `--diag` flags or `--diagnostics-file` (one per line). Use `--max-edits` to cap patch size.
+
+## Server config
+- Environment variables:
+  - `NOVAEDIT_MODEL_ID` to load a HF model for inference (falls back to heuristics if unset).
+  - `NOVAEDIT_DEVICE` to pick device (e.g., `cuda:0`).
+  - `NOVAEDIT_LANGUAGE` (default `python`) and `NOVAEDIT_MAX_CODE_LINES` (default `2000`).
+- Health endpoint reports backend type and language.
 
 ## Hugging Face Model Card & Upload
 - Edit `model/config/novaedit-small.yaml` (or add your own) and place trained weights under `weights/` or point to a Hub repo.
