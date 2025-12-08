@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, HTTPException
 
 from novaedit import __version__
@@ -7,14 +9,25 @@ from novaedit.model import NovaEditModel
 from novaedit.server.api_schemas import EditRequest, EditResponse, StructuredEdit
 
 app = FastAPI(title="NovaEdit", version=__version__)
-model = NovaEditModel()
+
+MODEL_LANGUAGE = os.getenv("NOVAEDIT_LANGUAGE", "python")
+MODEL_ID = os.getenv("NOVAEDIT_MODEL_ID")
+MODEL_DEVICE = os.getenv("NOVAEDIT_DEVICE")
 SUPPORTED_LANGUAGES = {"python"}
-MAX_CODE_LINES = 2000
+MAX_CODE_LINES = int(os.getenv("NOVAEDIT_MAX_CODE_LINES", "2000"))
+
+model = NovaEditModel(language=MODEL_LANGUAGE, hf_model_id=MODEL_ID, device=MODEL_DEVICE)
 
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok", "version": __version__}
+    backend = "hf" if MODEL_ID else "heuristic"
+    return {
+        "status": "ok",
+        "version": __version__,
+        "backend": backend,
+        "language": MODEL_LANGUAGE,
+    }
 
 
 @app.post("/v1/edit", response_model=EditResponse)

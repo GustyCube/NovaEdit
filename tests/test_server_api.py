@@ -41,3 +41,10 @@ def test_edit_rejects_unsupported_language():
     }
     resp = client.post("/v1/edit", json=payload)
     assert resp.status_code == 400
+
+
+def test_health_includes_backend():
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "backend" in body
