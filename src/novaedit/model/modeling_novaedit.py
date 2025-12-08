@@ -5,6 +5,14 @@ import re
 from dataclasses import dataclass
 from typing import Any, Iterable, List, Sequence, Tuple
 
+try:
+    from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
+    import torch  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    AutoModelForCausalLM = None  # type: ignore
+    AutoTokenizer = None  # type: ignore
+    torch = None  # type: ignore
+
 from novaedit.languages.python.adapter import PythonAdapter
 from novaedit.languages.python.patch_apply import apply_patch_dsl
 from novaedit.model.config import ModelConfig, load_default_config
@@ -18,16 +26,29 @@ class PatchEdit:
 
 
 class NovaEditModel:
-    """Lightweight baseline model that emits minimal patches from heuristics.
+    """Heuristic baseline with optional Hugging Face generation hook.
 
-    This keeps the codebase runnable while model training is in progress.
-    The interface mirrors what a future Transformer-backed model will expose.
+    - By default runs lightweight heuristics so the repo is runnable without weights.
+    - If `hf_model_id` is provided and transformers is installed, uses the HF model
+      to produce a textual patch DSL, then parses it.
     """
 
-    def __init__(self, config: ModelConfig | None = None, language: str = "python"):
+    def __init__(
+        self,
+        config: ModelConfig | None = None,
+        language: str = "python",
+        hf_model_id: str | None = None,
+        device: str | None = None,
+    ):
         self.config = config or load_default_config()
         self.language = language
         self.adapter = PythonAdapter() if language == "python" else None
+        self.hf_model_id = hf_model_id
+        self.device = device or ("cuda" if torch and torch.cuda.is_available() else "cpu")
+        self._hf_model = None
+        self._hf_tokenizer = None
+        if hf_model_id:
+            self._load_hf_model(hf_model_id)
 
     def generate_patch(
         self,
@@ -40,6 +61,9 @@ class NovaEditModel:
         """Return structured edits and textual patch DSL."""
         diagnostics = diagnostics or []
         instruction = instruction or ""
+        if self._hf_model:
+            return self._generate_with_hf(code, start_line, end_line, diagnostics, instruction)
+
         lines = code.splitlines()
         slice_start = max(1, start_line)
         slice_end = min(len(lines), end_line)
@@ -170,6 +194,85 @@ class NovaEditModel:
         if self.adapter:
             return apply_patch_dsl(code, patch_dsl)
         return code
+
+    def _load_hf_model(self, model_id: str) -> None:
+        if AutoModelForCausalLM is None or AutoTokenizer is None or torch is None:
+            raise ImportError("Install transformers and torch to load Hugging Face models.")
+        self._hf_tokenizer = AutoTokenizer.from_pretrained(model_id)
+        self._hf_model = AutoModelForCausalLM.from_pretrained(model_id).to(self.device)
+        self._hf_model.eval()
+
+    def _generate_with_hf(
+        self,
+        code: str,
+        start_line: int,
+        end_line: int,
+        diagnostics: Sequence[str],
+        instruction: str,
+    ) -> Tuple[List[PatchEdit], str]:
+        assert self._hf_model and self._hf_tokenizer
+        prompt = self._format_prompt(code, start_line, end_line, diagnostics, instruction)
+        inputs = self._hf_tokenizer(prompt, return_tensors="pt").to(self.device)
+        with torch.no_grad():
+            output = self._hf_model.generate(
+                **inputs,
+                max_new_tokens=256,
+                do_sample=False,
+                pad_token_id=self._hf_tokenizer.eos_token_id,
+                eos_token_id=self._hf_tokenizer.eos_token_id,
+            )
+        generated = self._hf_tokenizer.decode(output[0][inputs["input_ids"].shape[1] :])
+        # crude cut on PATCH_END or eos
+        patch_text = generated.split("<PATCH_END>")[0].strip()
+        edits = self._parse_patch_text(patch_text)
+        patch_dsl = build_patch_dsl(code.splitlines(), edits)
+        return edits, patch_dsl
+
+    def _format_prompt(
+        self, code: str, start_line: int, end_line: int, diagnostics: Sequence[str], instruction: str
+    ) -> str:
+        lines = code.splitlines()
+        snippet = "\n".join(lines[start_line - 1 : end_line])
+        diag_text = "\n".join(diagnostics)
+        return (
+            f"<LANG={self.language}>\n"
+            f"<REGION_START_LINE> {start_line} </REGION_START_LINE>\n"
+            f"<REGION_END_LINE> {end_line} </REGION_END_LINE>\n"
+            f"<CODE_START>\n{snippet}\n<CODE_END>\n"
+            f"<DIAG_START>\n{diag_text}\n<DIAG_END>\n"
+            f"<INSTR_START>\n{instruction}\n<INSTR_END>\n"
+            f"<PATCH_START>\n"
+        )
+
+    def _parse_patch_text(self, text: str) -> List[PatchEdit]:
+        # Expect lines like "@@ 3-4", "- old", "+ new"
+        edits: List[PatchEdit] = []
+        lines = [ln for ln in text.splitlines() if ln.strip()]
+        idx = 0
+        original_stub: List[str] = []
+        while idx < len(lines):
+            header = lines[idx].strip()
+            if not header.startswith("@@"):
+                idx += 1
+                continue
+            try:
+                span = header.split(" ", maxsplit=1)[1]
+                start_str, end_str = span.split("-")
+                start, end = int(start_str), int(end_str)
+            except Exception:
+                break
+            idx += 1
+            replacement_lines: List[str] = []
+            while idx < len(lines) and not lines[idx].startswith("@@"):
+                line = lines[idx]
+                if line.startswith("+"):
+                    replacement_lines.append(line[2:] if line.startswith("+ ") else line[1:])
+                elif line.startswith("-"):
+                    original_stub.append(line[2:] if line.startswith("- ") else line[1:])
+                idx += 1
+            replacement = "\n".join(replacement_lines).rstrip("\n") + ("\n" if replacement_lines else "")
+            edits.append(PatchEdit(start_line=start, end_line=end, replacement=replacement))
+        return edits
 
 
 def build_patch_dsl(original_lines: List[str], edits: Sequence[PatchEdit]) -> str:

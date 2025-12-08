@@ -20,6 +20,8 @@ bash scripts/prepare_python_data.sh
 ```
 - `scripts/mine_git_diffs.py` — collect recent Python diffs from a repo.
 - `scripts/generate_synthetic_bugs.py` — inject simple bugs and save JSONL.
+- `scripts/build_edit_dataset.py` — merge multiple JSONL sources into one.
+- `scripts/train_tokenizer.py --input-glob 'data/python/raw/**/*.py' --output model/tokenizer.json` — train a BPE tokenizer.
 
 ## Training stubs
 - `trainer/pretrain.py` — tiny character LM to smoke-test pipelines.

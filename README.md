@@ -19,6 +19,9 @@ NovaEdit is a compact, code-edit–first model stack and toolkit. It accepts cod
 - `docker/Dockerfile`: container to serve the API with a bundled model.
 - `docs/`: VitePress docs site (2.0 alpha; run with `npm run dev` from `docs`).
 
+## Using a Hugging Face checkpoint (optional)
+The baseline is heuristic. To try a HF model (e.g., a small causal LM), instantiate the model with `NovaEditModel(hf_model_id="org/model-name")`. Requires `transformers` and `torch` installed and will generate patch text via the HF model before parsing to structured edits.
+
 ## Hugging Face Model Card & Upload
 - Edit `model/config/novaedit-small.yaml` (or add your own) and place trained weights under `weights/` or point to a Hub repo.
 - Use `scripts/push_to_hub.py` (or `huggingface_hub` CLI) to create a repository:  

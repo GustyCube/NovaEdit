@@ -89,5 +89,25 @@ def serve(port: int = typer.Option(8000, "--port"), reload: bool = typer.Option(
     uvicorn.run("novaedit.server.main:app", host="0.0.0.0", port=port, reload=reload)
 
 
+@app.command()
+def regression() -> None:
+    """Run the built-in regression cases and print patches."""
+    from eval.run_eval_regression import REGRESSION_CASES
+
+    model = NovaEditModel()
+    for case in REGRESSION_CASES:
+        _, patch_dsl = model.generate_patch(
+            code=case["code"],
+            start_line=1,
+            end_line=len(case["code"].splitlines()),
+            diagnostics=case["diagnostics"],
+            instruction="fix",
+        )
+        updated = model.apply_patch(case["code"], patch_dsl)
+        console.rule(f"[bold green]{case['name']}")
+        console.print(patch_dsl.strip() or "(no patch)")
+        console.print(Syntax(updated, "python"))
+
+
 if __name__ == "__main__":
     app()
