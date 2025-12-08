@@ -4,8 +4,10 @@ import asyncio
 import logging
 import os
 from functools import partial
+from typing import List
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from novaedit import __version__
 from novaedit.model import NovaEditModel
@@ -21,6 +23,17 @@ MAX_CODE_LINES = int(os.getenv("NOVAEDIT_MAX_CODE_LINES", "2000"))
 MAX_CONCURRENT = int(os.getenv("NOVAEDIT_MAX_CONCURRENT", "8"))
 REQUEST_TIMEOUT = float(os.getenv("NOVAEDIT_REQUEST_TIMEOUT", "15"))
 LOG_REQUESTS = os.getenv("NOVAEDIT_LOG_REQUESTS", "false").lower() in {"1", "true", "yes"}
+CORS_ORIGINS = os.getenv("NOVAEDIT_CORS_ORIGINS", "")
+ORIGINS: List[str] = [o.strip() for o in CORS_ORIGINS.split(",") if o.strip()]
+
+if ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 model = NovaEditModel(language=MODEL_LANGUAGE, hf_model_id=MODEL_ID, device=MODEL_DEVICE)
 semaphore = asyncio.Semaphore(MAX_CONCURRENT)
@@ -36,6 +49,7 @@ async def health() -> dict[str, str]:
         "version": __version__,
         "backend": backend,
         "language": MODEL_LANGUAGE,
+        "cors": ORIGINS,
     }
 
 
