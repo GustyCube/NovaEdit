@@ -45,7 +45,7 @@ jobs:
           node-version: 24
           cache: npm # or pnpm / yarn
           cache-dependency-path: |
-            ${{ github.workspace }}/docs/package-lock.json
+            docs/package-lock.json
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
