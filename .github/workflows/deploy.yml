@@ -42,10 +42,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: npm # or pnpm / yarn
-          cache-dependency-path: |
-            **/package-lock.json
+            node-version: 24
+            cache: npm
+            cache-dependency-path: docs/package-lock.json
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
