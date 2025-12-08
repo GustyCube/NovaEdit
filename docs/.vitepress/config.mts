@@ -7,6 +7,9 @@ export default defineConfig({
   srcDir: ".",
   cleanUrls: true,
   lastUpdated: true,
+  ignoreDeadLinks: [
+    /^http:\/\/localhost/
+  ],
   themeConfig: {
     nav: [
       { text: "Guide", link: "/guide/quickstart" },

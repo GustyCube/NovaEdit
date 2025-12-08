@@ -7,7 +7,7 @@ outline: [2, 3]
 
 The full technical roadmap lives in `plan.md` at the repository root. This page highlights the key milestones; consult the source file for details.
 
-- [View full plan](../plan.md)
+- [View full plan](https://github.com/GustyCube/NovaEdit/blob/main/plan.md)
 
 ## Milestones
 - Prototype: tokenizer, Python adapter, heuristic baseline, server, CLI, VS Code stub.
