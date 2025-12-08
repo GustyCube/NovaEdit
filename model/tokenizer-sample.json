@@ -1,0 +1,440 @@
+{
+  "version": "1.0",
+  "truncation": null,
+  "padding": null,
+  "added_tokens": [
+    {
+      "id": 0,
+      "content": "<bos>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 1,
+      "content": "<eos>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 2,
+      "content": "<LANG=python>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 3,
+      "content": "<CODE_START>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 4,
+      "content": "<CODE_END>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 5,
+      "content": "<DIAG_START>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 6,
+      "content": "<DIAG_END>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 7,
+      "content": "<INSTR_START>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 8,
+      "content": "<INSTR_END>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 9,
+      "content": "<PATCH_START>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 10,
+      "content": "<PATCH_END>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 11,
+      "content": "<EDIT>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    },
+    {
+      "id": 12,
+      "content": "<NO_EDIT>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    }
+  ],
+  "normalizer": null,
+  "pre_tokenizer": {
+    "type": "Whitespace"
+  },
+  "post_processor": null,
+  "decoder": null,
+  "model": {
+    "type": "BPE",
+    "dropout": null,
+    "unk_token": null,
+    "continuing_subword_prefix": null,
+    "end_of_word_suffix": null,
+    "fuse_unk": false,
+    "byte_fallback": false,
+    "ignore_merges": false,
+    "vocab": {
+      "<bos>": 0,
+      "<eos>": 1,
+      "<LANG=python>": 2,
+      "<CODE_START>": 3,
+      "<CODE_END>": 4,
+      "<DIAG_START>": 5,
+      "<DIAG_END>": 6,
+      "<INSTR_START>": 7,
+      "<INSTR_END>": 8,
+      "<PATCH_START>": 9,
+      "<PATCH_END>": 10,
+      "<EDIT>": 11,
+      "<NO_EDIT>": 12,
+      "\"": 13,
+      "(": 14,
+      ")": 15,
+      "*": 16,
+      ",": 17,
+      "2": 18,
+      ":": 19,
+      "=": 20,
+      "E": 21,
+      "H": 22,
+      "N": 23,
+      "_": 24,
+      "a": 25,
+      "d": 26,
+      "e": 27,
+      "f": 28,
+      "g": 29,
+      "i": 30,
+      "l": 31,
+      "m": 32,
+      "n": 33,
+      "o": 34,
+      "p": 35,
+      "r": 36,
+      "s": 37,
+      "t": 38,
+      "u": 39,
+      "v": 40,
+      "re": 41,
+      "__": 42,
+      "di": 43,
+      "adi": 44,
+      "na": 45,
+      "radi": 46,
+      "us": 47,
+      "radius": 48,
+      "(\"": 49,
+      "):": 50,
+      "are": 51,
+      "de": 52,
+      "et": 53,
+      "gre": 54,
+      "in": 55,
+      "me": 56,
+      "name": 57,
+      "area": 58,
+      "def": 59,
+      "greet": 60,
+      "\")": 61,
+      "\",": 62,
+      "\":": 63,
+      "==": 64,
+      "Edi": 65,
+      "He": 66,
+      "No": 67,
+      "ain": 68,
+      "aEdi": 69,
+      "em": 70,
+      "if": 71,
+      "ll": 72,
+      "main": 73,
+      "pi": 74,
+      "pr": 75,
+      "rn": 76,
+      "tu": 77,
+      "vaEdi": 78,
+      "retu": 79,
+      "__name": 80,
+      "__main": 81,
+      "naem": 82,
+      "int": 83,
+      "Hell": 84,
+      "NovaEdi": 85,
+      "print": 86,
+      "return": 87,
+      "__name__": 88,
+      "__main__": 89,
+      "Hello": 90,
+      "NovaEdit": 91
+    },
+    "merges": [
+      [
+        "r",
+        "e"
+      ],
+      [
+        "_",
+        "_"
+      ],
+      [
+        "d",
+        "i"
+      ],
+      [
+        "a",
+        "di"
+      ],
+      [
+        "n",
+        "a"
+      ],
+      [
+        "r",
+        "adi"
+      ],
+      [
+        "u",
+        "s"
+      ],
+      [
+        "radi",
+        "us"
+      ],
+      [
+        "(",
+        "\""
+      ],
+      [
+        ")",
+        ":"
+      ],
+      [
+        "a",
+        "re"
+      ],
+      [
+        "d",
+        "e"
+      ],
+      [
+        "e",
+        "t"
+      ],
+      [
+        "g",
+        "re"
+      ],
+      [
+        "i",
+        "n"
+      ],
+      [
+        "m",
+        "e"
+      ],
+      [
+        "na",
+        "me"
+      ],
+      [
+        "are",
+        "a"
+      ],
+      [
+        "de",
+        "f"
+      ],
+      [
+        "gre",
+        "et"
+      ],
+      [
+        "\"",
+        ")"
+      ],
+      [
+        "\"",
+        ","
+      ],
+      [
+        "\"",
+        ":"
+      ],
+      [
+        "=",
+        "="
+      ],
+      [
+        "E",
+        "di"
+      ],
+      [
+        "H",
+        "e"
+      ],
+      [
+        "N",
+        "o"
+      ],
+      [
+        "a",
+        "in"
+      ],
+      [
+        "a",
+        "Edi"
+      ],
+      [
+        "e",
+        "m"
+      ],
+      [
+        "i",
+        "f"
+      ],
+      [
+        "l",
+        "l"
+      ],
+      [
+        "m",
+        "ain"
+      ],
+      [
+        "p",
+        "i"
+      ],
+      [
+        "p",
+        "r"
+      ],
+      [
+        "r",
+        "n"
+      ],
+      [
+        "t",
+        "u"
+      ],
+      [
+        "v",
+        "aEdi"
+      ],
+      [
+        "re",
+        "tu"
+      ],
+      [
+        "__",
+        "name"
+      ],
+      [
+        "__",
+        "main"
+      ],
+      [
+        "na",
+        "em"
+      ],
+      [
+        "in",
+        "t"
+      ],
+      [
+        "He",
+        "ll"
+      ],
+      [
+        "No",
+        "vaEdi"
+      ],
+      [
+        "pr",
+        "int"
+      ],
+      [
+        "retu",
+        "rn"
+      ],
+      [
+        "__name",
+        "__"
+      ],
+      [
+        "__main",
+        "__"
+      ],
+      [
+        "Hell",
+        "o"
+      ],
+      [
+        "NovaEdi",
+        "t"
+      ]
+    ]
+  }
+}

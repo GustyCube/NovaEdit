@@ -6,14 +6,14 @@ from pydantic import BaseModel, Field
 
 
 class EditRequest(BaseModel):
-    language: str = "python"
-    code: str
+    language: str = Field(default="python", description="Source language, e.g. python")
+    code: str = Field(..., max_length=20000, description="Code snippet to edit.")
     file_path: Optional[str] = None
     start_line: int = Field(default=1, ge=1)
     end_line: int = Field(default=1, ge=1)
     diagnostics: List[str] = Field(default_factory=list)
     instruction: Optional[str] = ""
-    max_edits: int = Field(default=5, ge=1)
+    max_edits: int = Field(default=5, ge=1, le=50)
     temperature: float = 0.2
 
 

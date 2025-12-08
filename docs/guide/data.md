@@ -19,7 +19,7 @@ bash scripts/prepare_python_data.sh
 # mines small diffs and synthetic samples into data/python/...
 ```
 - `scripts/mine_git_diffs.py` — collect recent Python diffs from a repo.
-- `scripts/generate_synthetic_bugs.py` — inject simple bugs and save JSONL.
+- `scripts/generate_synthetic_bugs.py` — inject varied bugs (missing imports, typos, off-by-one, comparators, missing returns) and save JSONL.
 - `scripts/build_edit_dataset.py` — merge multiple JSONL sources into one.
 - `scripts/train_tokenizer.py --input-glob 'data/python/raw/**/*.py' --output model/tokenizer.json` — train a BPE tokenizer.
 
@@ -35,3 +35,7 @@ bash scripts/prepare_python_data.sh
 ## Hugging Face
 - Push weights/config with `scripts/push_to_hub.py --repo <org/model> --path weights/novaedit-small`.
 - For Spaces, run the FastAPI app (`novaedit.server.main:app`) via the provided Dockerfile.
+
+## Samples
+- `data/python/processed/sample_edits.jsonl` — tiny, ready-to-use edit dataset for smoke tests.
+- `model/tokenizer-sample.json` — toy tokenizer generated from `examples/` for pipeline checks (train your own for real runs).

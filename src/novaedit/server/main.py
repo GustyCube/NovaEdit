@@ -8,6 +8,8 @@ from novaedit.server.api_schemas import EditRequest, EditResponse, StructuredEdi
 
 app = FastAPI(title="NovaEdit", version=__version__)
 model = NovaEditModel()
+SUPPORTED_LANGUAGES = {"python"}
+MAX_CODE_LINES = 2000
 
 
 @app.get("/health")
@@ -19,6 +21,13 @@ async def health() -> dict[str, str]:
 async def edit(request: EditRequest) -> EditResponse:
     if request.start_line > request.end_line:
         raise HTTPException(status_code=400, detail="start_line must be <= end_line")
+    if request.language not in SUPPORTED_LANGUAGES:
+        raise HTTPException(status_code=400, detail=f"Unsupported language: {request.language}")
+    if request.code.count("\n") > MAX_CODE_LINES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Code snippet too large; limit {MAX_CODE_LINES} lines.",
+        )
 
     edits, patch_dsl = model.generate_patch(
         code=request.code,
