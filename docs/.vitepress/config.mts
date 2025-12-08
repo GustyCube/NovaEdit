@@ -12,7 +12,7 @@ export default defineConfig({
       { text: "Guide", link: "/guide/quickstart" },
       { text: "API", link: "/api/server" },
       { text: "Plan", link: "/plan" },
-      { text: "GitHub", link: "https://github.com/example/novaedit" }
+      { text: "GitHub", link: "https://github.com/GustyCube/novaedit" }
     ],
     sidebar: [
       {
@@ -34,7 +34,7 @@ export default defineConfig({
         items: [{ text: "Plan", link: "/plan" }]
       }
     ],
-    socialLinks: [{ icon: "github", link: "https://github.com/example/novaedit" }]
+    socialLinks: [{ icon: "github", link: "https://github.com/GustyCube/novaedit" }]
   },
   markdown: {
     theme: "github-light"
