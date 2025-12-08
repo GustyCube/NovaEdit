@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+htmlcov/
+coverage.*
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Node / frontend
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.vitepress/cache/
+.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
