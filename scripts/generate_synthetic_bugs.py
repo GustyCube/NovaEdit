@@ -5,6 +5,8 @@ import random
 from pathlib import Path
 from typing import Callable, Iterable, Tuple
 
+import ast
+
 from trainer.utils_dataset import save_jsonl
 
 Transform = Callable[[str], Tuple[str, str]]
@@ -54,12 +56,17 @@ TRANSFORMS: list[Transform] = [
 ]
 
 
-def generate_samples(source_dir: Path, limit: int = 20, pattern: str = "*.py") -> Iterable[dict]:
+def generate_samples(
+    source_dir: Path, limit: int = 20, pattern: str = "*.py", validate: bool = False
+) -> Iterable[dict]:
     files = sorted(source_dir.rglob(pattern))
     for path in files[:limit]:
         original = path.read_text()
         transform = random.choice(TRANSFORMS)
         buggy, diag = transform(original)
+        if validate:
+            if not is_valid_python(original) or not is_valid_python(buggy):
+                continue
         yield {
             "language": "python",
             "file_path": str(path),
@@ -79,12 +86,21 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True, help="Where to write JSONL.")
     parser.add_argument("--limit", type=int, default=50)
     parser.add_argument("--pattern", type=str, default="*.py", help="Glob for files, default *.py (recursive).")
+    parser.add_argument("--validate", action="store_true", help="Skip samples that fail AST parse.")
     args = parser.parse_args()
 
-    rows = list(generate_samples(args.source, limit=args.limit, pattern=args.pattern))
+    rows = list(generate_samples(args.source, limit=args.limit, pattern=args.pattern, validate=args.validate))
     save_jsonl(args.out, rows)
     print(f"Wrote {len(rows)} synthetic samples to {args.out}")
 
 
 if __name__ == "__main__":
     main()
+
+
+def is_valid_python(code: str) -> bool:
+    try:
+        ast.parse(code)
+        return True
+    except SyntaxError:
+        return False
