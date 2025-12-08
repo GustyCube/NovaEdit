@@ -14,6 +14,11 @@ REGRESSION_CASES = [
         "code": "total = 0\nfor i in range(3):\n    total += i\nprint(totl)\n",
         "diagnostics": ["NameError: name 'totl' is not defined"],
     },
+    {
+        "name": "off_by_one",
+        "code": "items = [1, 2, 3]\nfor i in range(len(items)):\n    print(items[i + 1])\n",
+        "diagnostics": ["IndexError: list index out of range"],
+    },
 ]
 
 
