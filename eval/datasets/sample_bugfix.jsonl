@@ -1,0 +1,1 @@
+{"language": "python", "code": "def area(radius):\n    return pi * radius * radius\n", "region": {"start_line": 1, "end_line": 2}, "diagnostics": ["NameError: name 'pi' is not defined"], "instruction": "fix errors only"}
