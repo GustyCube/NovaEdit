@@ -14,6 +14,7 @@ except Exception:  # pragma: no cover - optional dependency
     torch = None  # type: ignore
 
 from novaedit.languages.python.adapter import PythonAdapter
+from novaedit.languages.javascript.adapter import JavaScriptAdapter
 from novaedit.languages.python.patch_apply import apply_patch_dsl
 from novaedit.model.config import ModelConfig, load_default_config
 
@@ -42,7 +43,12 @@ class NovaEditModel:
     ):
         self.config = config or load_default_config()
         self.language = language
-        self.adapter = PythonAdapter() if language == "python" else None
+        if language == "python":
+            self.adapter = PythonAdapter()
+        elif language == "javascript":
+            self.adapter = JavaScriptAdapter()
+        else:
+            self.adapter = None
         self.hf_model_id = hf_model_id
         self.device = device or ("cuda" if torch and torch.cuda.is_available() else "cpu")
         self._hf_model = None

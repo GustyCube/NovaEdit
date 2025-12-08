@@ -1,1 +1,1 @@
-__all__ = ["python"]
+__all__ = ["python", "javascript"]

@@ -16,7 +16,7 @@ app = FastAPI(title="NovaEdit", version=__version__)
 MODEL_LANGUAGE = os.getenv("NOVAEDIT_LANGUAGE", "python")
 MODEL_ID = os.getenv("NOVAEDIT_MODEL_ID")
 MODEL_DEVICE = os.getenv("NOVAEDIT_DEVICE")
-SUPPORTED_LANGUAGES = {"python"}
+SUPPORTED_LANGUAGES = {"python", "javascript"}
 MAX_CODE_LINES = int(os.getenv("NOVAEDIT_MAX_CODE_LINES", "2000"))
 MAX_CONCURRENT = int(os.getenv("NOVAEDIT_MAX_CONCURRENT", "8"))
 REQUEST_TIMEOUT = float(os.getenv("NOVAEDIT_REQUEST_TIMEOUT", "15"))
