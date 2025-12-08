@@ -33,12 +33,22 @@ def edit(
         False, "--use-server", help="Send to running novaedit server instead of local model."
     ),
     server_url: str = typer.Option("http://localhost:8000/v1/edit", "--server-url"),
+    hf_model_id: Optional[str] = typer.Option(
+        None, "--hf-model-id", help="Optional Hugging Face model ID to use locally."
+    ),
+    max_edits: int = typer.Option(5, "--max-edits", help="Maximum edits to apply from response."),
+    diagnostics_file: Optional[Path] = typer.Option(
+        None, "--diagnostics-file", help="Path to file with diagnostics, one per line."
+    ),
 ) -> None:
     """Generate a patch for a code region and optionally apply it."""
     code = code_file.read_text()
     lines = code.splitlines()
     end_line = end_line or len(lines)
     diagnostics = diagnostic or []
+    if diagnostics_file and diagnostics_file.exists():
+        diagnostics.extend([ln.strip() for ln in diagnostics_file.read_text().splitlines() if ln.strip()])
+    language = language.lower()
 
     if use_server:
         try:
@@ -53,15 +63,18 @@ def edit(
             end_line=end_line,
             diagnostics=diagnostics,
             instruction=instruction,
+            max_edits=max_edits,
         )
         with httpx.Client(timeout=30) as client:
             resp = client.post(server_url, json=json.loads(payload.model_dump_json()))
-            resp.raise_for_status()
+            if resp.status_code >= 400:
+                console.print(f"[red]Server error {resp.status_code}: {resp.text}[/red]")
+                raise typer.Exit(1)
             data = resp.json()
-            patch_dsl = data["raw_patch_dsl"]
+            patch_dsl = data.get("raw_patch_dsl", "")
             new_code = NovaEditModel().apply_patch(code, patch_dsl)
     else:
-        model = NovaEditModel(language=language)
+        model = NovaEditModel(language=language, hf_model_id=hf_model_id)
         _, patch_dsl = model.generate_patch(
             code=code,
             start_line=start_line,

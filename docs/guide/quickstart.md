@@ -42,6 +42,7 @@ npm install
 npm run compile
 # Press F5 in VS Code to launch the Extension Development Host
 ```
+Settings: `novaedit.endpoint` (default http://localhost:8000/v1/edit) and `novaedit.instruction` (default "fix errors only").
 
 ## Docker
 ```bash

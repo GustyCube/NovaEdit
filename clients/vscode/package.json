@@ -20,7 +20,23 @@
         "command": "novaedit.fixCode",
         "title": "NovaEdit: Fix/Improve Code"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "NovaEdit",
+      "properties": {
+        "novaedit.endpoint": {
+          "type": "string",
+          "default": "http://localhost:8000/v1/edit",
+          "description": "NovaEdit server endpoint."
+        },
+        "novaedit.instruction": {
+          "type": "string",
+          "default": "fix errors only",
+          "description": "Instruction passed to the NovaEdit model."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
