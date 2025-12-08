@@ -44,6 +44,9 @@ npm run compile
 ```
 Settings: `novaedit.endpoint` (default http://localhost:8000/v1/edit) and `novaedit.instruction` (default "fix errors only").
 
+## Environment variables (server)
+- `NOVAEDIT_MODEL_ID`, `NOVAEDIT_DEVICE`, `NOVAEDIT_LANGUAGE`, `NOVAEDIT_MAX_CODE_LINES`, `NOVAEDIT_MAX_CONCURRENT`, `NOVAEDIT_REQUEST_TIMEOUT`, `NOVAEDIT_LOG_REQUESTS`.
+
 ## Docker
 ```bash
 docker build -t novaedit:dev -f docker/Dockerfile .
