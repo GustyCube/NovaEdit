@@ -26,7 +26,6 @@ coverage.*
 # Node / frontend
 node_modules/
 pnpm-lock.yaml
-package-lock.json
 yarn.lock
 .vitepress/cache/
 .vitepress/dist/
