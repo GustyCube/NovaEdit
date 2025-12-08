@@ -10,8 +10,9 @@ NovaEdit is a compact, code-edit–first model stack and toolkit. It accepts cod
 
 ## What’s Included
 - `src/novaedit/model/*`: lightweight tokenizer wrapper, config objects, and a heuristic `NovaEditModel` that emits small patches; pluggable with future Transformer checkpoints.
-- `src/novaedit/server/*`: FastAPI app exposing `/v1/edit` with Pydantic schemas.
+- `src/novaedit/server/*`: FastAPI app exposing `/v1/edit` with Pydantic schemas, env-configurable backend/device/concurrency.
 - `src/novaedit/languages/python/*`: language adapter, simple diagnostics, and patch application helpers.
+- `src/novaedit/languages/javascript/*`: stub adapter to unblock multi-language wiring.
 - `src/novaedit/clients/cli/*`: Typer CLI for local edits or talking to the server.
 - `trainer/*` and `scripts/*`: data prep and training stubs matching the plan.
 - `eval/*`: simple bugfix/regression harness skeletons.
