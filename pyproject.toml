@@ -9,7 +9,7 @@ description = "NovaEdit: code-edit–first model, server, and tooling."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
-authors = [{name = "GustyCube}]
+authors = [{ name = "GustyCube" }]
 dependencies = [
   "fastapi>=0.110",
   "pydantic>=2.6",

@@ -42,7 +42,7 @@ logging.basicConfig(level=logging.INFO if LOG_REQUESTS else logging.WARNING)
 
 
 @app.get("/health")
-async def health() -> dict[str, str]:
+async def health() -> dict[str, object]:
     backend = "hf" if MODEL_ID else "heuristic"
     return {
         "status": "ok",
@@ -65,14 +65,13 @@ async def edit(request: EditRequest) -> EditResponse:
             detail=f"Code snippet too large; limit {MAX_CODE_LINES} lines.",
         )
 
-    try:
-        semaphore.acquire_nowait()
-    except Exception:
+    if semaphore.locked():
         raise HTTPException(status_code=429, detail="Too many concurrent requests")
+    await semaphore.acquire()
     try:
         if LOG_REQUESTS:
             logger.info("edit request language=%s start=%s end=%s", request.language, request.start_line, request.end_line)
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         generate = partial(
             model.generate_patch,
             code=request.code,

@@ -3,7 +3,7 @@ from __future__ import annotations
 import difflib
 import re
 from dataclasses import dataclass
-from typing import Any, Iterable, List, Sequence, Tuple
+from typing import Any, List, Sequence, Tuple
 
 try:
     from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
@@ -17,6 +17,12 @@ from novaedit.languages.python.adapter import PythonAdapter
 from novaedit.languages.javascript.adapter import JavaScriptAdapter
 from novaedit.languages.python.patch_apply import apply_patch_dsl
 from novaedit.model.config import ModelConfig, load_default_config
+
+
+UNDEFINED_NAME_PATTERN = re.compile(r"name '([^']+)' is not defined")
+MISSING_IMPORT_PATTERN = re.compile(r"No module named '([^']+)'|undefined name '([^']+)'")
+NAME_TOKEN_PATTERN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+FUNC_DEF_PATTERN = re.compile(r"^def\s+([A-Za-z_][A-Za-z0-9_]*)\((.*)\):")
 
 
 @dataclass
@@ -101,18 +107,18 @@ class NovaEditModel:
         self, snippet: str, snippet_start_line: int, diagnostics: Sequence[str]
     ) -> List[PatchEdit]:
         edits: List[PatchEdit] = []
-        undefined_pattern = re.compile(r"name '([^']+)' is not defined")
-        all_names = re.findall(r"[A-Za-z_][A-Za-z0-9_]*", snippet)
+        snippet_lines = snippet.splitlines()
+        all_names = NAME_TOKEN_PATTERN.findall(snippet)
         defined_names = {name for name in all_names if not name.isupper()}
+        defined_names_list = list(defined_names)
 
         for diag in diagnostics:
-            match = undefined_pattern.search(diag)
+            match = UNDEFINED_NAME_PATTERN.search(diag)
             if not match:
                 continue
             missing = match.group(1)
-            candidate = self._find_best_name_match(missing, defined_names)
-            lines = snippet.splitlines()
-            for idx, line in enumerate(lines):
+            candidate = self._find_best_name_match(missing, defined_names_list)
+            for idx, line in enumerate(snippet_lines):
                 if missing in line:
                     absolute_line = snippet_start_line + idx
                     replacement_line = line.replace(missing, candidate or f"{missing}_value")
@@ -126,7 +132,6 @@ class NovaEditModel:
                     break
             if not candidate:
                 # Add a simple initialization at the top of the snippet.
-                snippet_lines = snippet.splitlines()
                 num_lines = max(1, len(snippet_lines))
                 replacement = f"{missing} = None  # inferred placeholder\n" + snippet + "\n"
                 edits.append(
@@ -142,14 +147,13 @@ class NovaEditModel:
         self, snippet: str, snippet_start_line: int, diagnostics: Sequence[str]
     ) -> List[PatchEdit]:
         edits: List[PatchEdit] = []
-        import_pattern = re.compile(r"No module named '([^']+)'|undefined name '([^']+)'")
+        snippet_lines = snippet.splitlines()
+        num_lines = max(1, len(snippet_lines))
         for diag in diagnostics:
-            match = import_pattern.search(diag)
+            match = MISSING_IMPORT_PATTERN.search(diag)
             if not match:
                 continue
             module = match.group(1) or match.group(2)
-            snippet_lines = snippet.splitlines()
-            num_lines = max(1, len(snippet_lines))
             import_line = f"import {module}\n"
             edits.append(
                 PatchEdit(
@@ -178,7 +182,7 @@ class NovaEditModel:
         return edits
 
     def _maybe_add_type_hint(self, line: str) -> str:
-        match = re.match(r"^def\s+([A-Za-z_][A-Za-z0-9_]*)\((.*)\):", line.strip())
+        match = FUNC_DEF_PATTERN.match(line.strip())
         if not match or "->" in line:
             return line
         fn_name, params = match.groups()
@@ -192,8 +196,8 @@ class NovaEditModel:
         typed = ", ".join(p.strip() for p in typed_params if p is not None)
         return f"def {fn_name}({typed}) -> Any:"
 
-    def _find_best_name_match(self, missing: str, names: Iterable[str]) -> str | None:
-        candidates = difflib.get_close_matches(missing, list(names), n=1, cutoff=0.6)
+    def _find_best_name_match(self, missing: str, names: Sequence[str]) -> str | None:
+        candidates = difflib.get_close_matches(missing, names, n=1, cutoff=0.6)
         return candidates[0] if candidates else None
 
     def apply_patch(self, code: str, patch_dsl: str) -> str:
